@@ -1,7 +1,7 @@
 # UEConfigParser
 
-An INI parser that reads ini files regardless of duplicate keys and special characters, comments.
-This parser is specially designed for Unreal Engine configuration files.  
+An textfile reader that acts as INI parser that reads/modifies/writes ini files regardless of duplicate keys and special characters, comments.
+This parser is specially designed for Unreal Engine configuration files.
 Compatible with Python 2.7 and 3.x.
 
 ## Installation
@@ -18,6 +18,12 @@ parser.read('example.ini')
 
 parser.display()
 
-parser.modify_value_by_key('SectionName', 'KeyName', 'NewValue')
+parser.modify('/Script/HardwareTargeting.HardwareTargetingSettings', 'AppliedTargetedHardwareClass', 'Mobile')
 
-parser.write('example.ini') 
+parser.disable_key('DevOptions.Shaders', 'NeedsShaderStableKeys')
+
+parser.enable_key('ConsoleVariables', 'Slate.EnableGlobalInvalidation')
+
+newline_option = '\n'  # option: None, '\n' (LF), '\r\n' (CRLF)
+
+parser.write('example.ini', newline_option=newline_option)
