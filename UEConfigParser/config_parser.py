@@ -43,36 +43,35 @@ class UnrealConfigParser:
         try:
             with open(file_path, 'w', encoding='utf-8', newline=newline_option) as file:
                 current_section = None
-                written_sections = set()
+                written_keys = defaultdict(set)
                 for line in self.lines:
                     stripped = line.rstrip('\n')
                     if stripped.startswith('['):
                         current_section = stripped[1:-1]
-                        written_sections.add(current_section)
                         file.write(line)
                     elif '=' in stripped and not stripped.startswith((';', '#')):
                         if current_section:
-                            key = stripped.split('=')[0].strip()
-                            if key in self.data[current_section]:
+                            key, _ = map(str.strip, stripped.split('=', 1))
+                            if key in self.data[current_section] and key not in written_keys[current_section]:
                                 values = self.data[current_section][key]
                                 for value in values:
-                                    file.write(f'{key}={value}\n')
-                                del self.data[current_section][key]
+                                    file.write(f"{key}={value}\n")
+                                written_keys[current_section].add(key)
                     else:
                         file.write(line)
 
                 for section, keys in self.data.items():
-                    if section not in written_sections:
-                        file.write(f'\n[{section}]\n')
-                        for key, values in keys.items():
+                    if section != current_section:
+                        file.write(f"\n[{section}]\n")
+                    for key, values in keys.items():
+                        if key not in written_keys[section]:
                             for value in values:
-                                file.write(f'{key}={value}\n')
-            print(f'File write: {file_path}')
+                                file.write(f"{key}={value}\n")
+                print(f'File write: {file_path}')
         except Exception as e:
             print('File write error: ', end='')
             print(e)
             raise
-
     def display(self):
         for section, keys in self.data.items():
             print(f'[{section}]')
