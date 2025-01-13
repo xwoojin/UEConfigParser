@@ -12,18 +12,15 @@ pip install UEConfigParser
 
 from UEConfigParser import UnrealConfigParser
 
-parser = UnrealConfigParser()
+parser = UnrealConfigParser()  
+parser.read('example.ini')  
+parser.display()  
 
-parser.read('example.ini')
+parser.modify('/Script/HardwareTargeting.HardwareTargetingSettings', 'AppliedTargetedHardwareClass', 'Mobile')  
+parser.disable_key('DevOptions.Shaders', 'NeedsShaderStableKeys')  
+parser.enable_key('ConsoleVariables', 'Slate.EnableGlobalInvalidation')  
 
-parser.display()
+newline_option = '\n'  # option: None, '\n' (LF), '\r\n' (CRLF)  
+parser.write('example.ini', newline_option=newline_option)  
 
-parser.modify('/Script/HardwareTargeting.HardwareTargetingSettings', 'AppliedTargetedHardwareClass', 'Mobile')
-
-parser.disable_key('DevOptions.Shaders', 'NeedsShaderStableKeys')
-
-parser.enable_key('ConsoleVariables', 'Slate.EnableGlobalInvalidation')
-
-newline_option = '\n'  # option: None, '\n' (LF), '\r\n' (CRLF)
-
-parser.write('example.ini', newline_option=newline_option)
+parser.display()  
