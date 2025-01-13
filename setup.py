@@ -6,7 +6,7 @@ setup(
     description='ConfigParser created for read/edit/write Unreal Engine Config files',
     author='WooJin Kim',
     author_email='woojinian@gmail.com',
-    url='https://github.com/xwoojin/',
+    url='https://github.com/xwoojin/UEConfigParser',
     install_requires=['configparser'],
     packages=find_packages(exclude=[]),
     keywords=['ueconfig', 'xwoojin', 'config', 'parser', 'unreal parser'],
