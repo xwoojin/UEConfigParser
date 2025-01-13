@@ -26,7 +26,7 @@ class UnrealConfigParser:
 
     def search_and_replace(self, search_phrase, replace_phrase):
         for section, keys in self.data.items():
-            for key, values in keys.items():
+            for key, values in list(keys.items()):
                 if search_phrase in key:
                     new_key = key.replace(search_phrase, replace_phrase)
                     self.data[section][new_key] = self.data[section].pop(key)
@@ -35,30 +35,41 @@ class UnrealConfigParser:
                         self.data[section][key][i] = value.replace(search_phrase, replace_phrase)
 
     def modify_value_by_key(self, section, key, new_value):
-        if section in self.data and key in self.data[section]:
-            self.data[section][key] = [new_value]
+        if section in self.data:
+            if key in self.data[section]:
+                self.data[section][key] = [new_value]
 
-
-    def write(self, file_path):
+    def write(self, file_path, newline_option=None):
         try:
-            with open(file_path, 'w', encoding='utf-8') as file:
+            with open(file_path, 'w', encoding='utf-8', newline=newline_option) as file:
+                current_section = None
+                written_sections = set()
                 for line in self.lines:
-                    stripped = line.strip()
+                    stripped = line.rstrip('\n')
                     if stripped.startswith('['):
+                        current_section = stripped[1:-1]
+                        written_sections.add(current_section)
                         file.write(line)
                     elif '=' in stripped and not stripped.startswith((';', '#')):
-                        key, _ = map(str.strip, stripped.split('=', 1))
-                        for section, keys in self.data.items():
-                            if key in keys:
-                                values = self.data[section][key]
+                        if current_section:
+                            key = stripped.split('=')[0].strip()
+                            if key in self.data[current_section]:
+                                values = self.data[current_section][key]
                                 for value in values:
                                     file.write(f'{key}={value}\n')
-                                break
+                                del self.data[current_section][key]
                     else:
                         file.write(line)
-            print(f'File Saved: {file_path}')
+
+                for section, keys in self.data.items():
+                    if section not in written_sections:
+                        file.write(f'\n[{section}]\n')
+                        for key, values in keys.items():
+                            for value in values:
+                                file.write(f'{key}={value}\n')
+            print(f'File write: {file_path}')
         except Exception as e:
-            print('File write error', end='')
+            print('File write error: ', end='')
             print(e)
             raise
 
