@@ -21,11 +21,11 @@ class UnrealConfigParser:
             print(e)
             raise
 
-    def write(self, output_path: str, newline_option='\n'):
+    def write(self, output_path: str, newline_option=None):
         """
         Writes output to a file with the changes made
         :param output_path: Path to the output file
-        :param newline_option: Newline character to use. Options: 'None','\n', '\r\n' (default: '\n')
+        :param newline_option: Newline character to use. Options: 'None','\n', '\r\n' (default: None)
         """
         if not os.path.exists(os.path.dirname(output_path)):
             try:
