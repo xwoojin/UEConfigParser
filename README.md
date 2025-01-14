@@ -16,11 +16,13 @@ parser = UnrealConfigParser()
 parser.read('example.ini')  
 parser.display()  
 
-parser.modify('/Script/HardwareTargeting.HardwareTargetingSettings', 'AppliedTargetedHardwareClass', 'Mobile')  
-parser.disable_key('DevOptions.Shaders', 'NeedsShaderStableKeys')  
-parser.enable_key('ConsoleVariables', 'Slate.EnableGlobalInvalidation')  
+parser.modify('/Script/HardwareTargeting.HardwareTargetingSettings', 'AppliedTargetedHardwareClass', 'Mobile', Spacing=False)  # Spacing between key/value = (default is False)
+parser.add_key('DevOptions.Shaders', 'NeedsShaderStableKeys', 'True')  
+parser.remove_key('ConsoleVariables', 'Slate.EnableGlobalInvalidation')  
+parser.comment_key('DevOptions.Shaders', 'NeedsShaderStableKeys')  
+parser.uncomment_key('ConsoleVariables', 'Slate.EnableGlobalInvalidation')  
 
-newline_option = '\n'  # option: None, '\n' (LF), '\r\n' (CRLF)  
+newline_option = '\n'  # option: None, '\n' (LF), '\r\n' (CRLF),  Default is None
 parser.write('example.ini', newline_option=newline_option)  
 
 parser.display()  
