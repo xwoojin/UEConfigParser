@@ -9,14 +9,16 @@ Compatible with Python 2.7 and 3.x.
 pip install UEConfigParser
 
 ## Usage
-
+```
 from UEConfigParser import UnrealConfigParser
 
 parser = UnrealConfigParser()  
 parser.read('example.ini')  
 parser.display()  
 
-parser.modify('/Script/HardwareTargeting.HardwareTargetingSettings', 'AppliedTargetedHardwareClass', 'Mobile', Spacing=False)  # Spacing between key/value = (default is False)  
+parser.modify('/Script/HardwareTargeting.HardwareTargetingSettings', 'AppliedTargetedHardwareClass', 'Mobile', Spacing=False)    
+# Spacing between key/value = (default is False)
+
 parser.add_key('DevOptions.Shaders', 'NeedsShaderStableKeys', 'True')  
 parser.remove_key('ConsoleVariables', 'Slate.EnableGlobalInvalidation')  
 parser.comment_key('DevOptions.Shaders', 'NeedsShaderStableKeys')  
@@ -26,3 +28,4 @@ newline_option = '\n'  # option: None, '\n' (LF), '\r\n' (CRLF),  Default is Non
 parser.write('example.ini', newline_option=newline_option)  
 
 parser.display()  
+```
