@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='UEConfigParser',
+    name='ueconfigparser',
     version='1.0.3',
     description='ConfigParser (in text) created for read/edit/write Unreal Engine Config files',
     author='WooJin Kim',
