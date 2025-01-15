@@ -1,8 +1,16 @@
 from setuptools import setup, find_packages
 
+long_description = ''
+
+with open('README.md', 'r') as f:
+    long_description = f.read()
+
 setup(
     name='ueconfigparser',
-    version='1.0.3',
+    version='1.0.6',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    license='MIT',
     description='ConfigParser (in text) created for read/edit/write Unreal Engine Config files',
     author='WooJin Kim',
     author_email='woojinian@gmail.com',
