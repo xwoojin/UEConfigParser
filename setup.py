@@ -7,7 +7,7 @@ with open('README.md', 'r') as f:
 
 setup(
     name='ueconfigparser',
-    version='1.0.6',
+    version='1.0.12',
     long_description=long_description,
     long_description_content_type='text/markdown',
     license='MIT',
