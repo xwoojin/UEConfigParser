@@ -61,8 +61,8 @@ parser = UnrealConfigParser()
 # Read the configuration file
 parser.read('config.ini')
 
-# Modify a key's value
-parser.modify('General', 'ExistingKey', 'UpdatedValue')
+# set a key's value
+parser.set('General', 'ExistingKey', 'UpdatedValue')
 
 # Save the changes
 parser.write('updated_config.ini')
@@ -129,7 +129,7 @@ parser.write('updated_config.ini')
 - **`remove_key(section: str, key: str)`**
   - Removes a key from a section.
 
-- **`modify(section: str, key: str, new_value: str, spacing=False)`**
+- **`set(section: str, key: str, new_value: str, spacing=False)`**
   - Modifies the value of a key in a section.
 
 - **`comment_key(section: str, key: str)`**
@@ -138,10 +138,10 @@ parser.write('updated_config.ini')
 - **`uncomment_key(section: str, key: str)`**
   - Enables a key by uncommenting it.
 
-- **`update_value_if_matches(section: str, key: str, match_substring: str, new_value: str)`**
+- **`set_value_by_value_substring_search(section: str, key: str, match_substring: str, new_value: str)`**
   - Updates a key's value if it matches a specific substring.
 
-- **`update_value_if_matches_in_section(section: str, match_substring: str, new_value: str)`**
+- **`set_value_by_section_search(section: str, match_substring: str, new_value: str)`**
   - Updates any key's value in a section if it matches a substring.
 
 - **`replace_substring_in_value(section: str, key: str, match_substring: str, new_substring: str)`**
@@ -150,16 +150,16 @@ parser.write('updated_config.ini')
 - **`replace_substring_in_section(section: str, match_substring: str, new_substring: str)`**
   - Replaces substrings in the values of all keys within a section.
 
-- **`comment_key_if_value_matches(section: str, key: str, match_substring: str)`**
+- **`comment_key_by_value_substring_search(section: str, key: str, match_substring: str)`**
   - Comments out a key if its value matches a specific substring.
 
-- **`uncomment_key_if_value_matches(section: str, key: str, match_substring: str)`**
+- **`uncomment_key_by_value_substring_search(section: str, key: str, match_substring: str)`**
   - Uncomments a key if its value matches a specific substring.
 
-- **`comment_key_if_value_matches_in_section(section: str, match_substring: str)`**
+- **`comment_key_by_section_search(section: str, match_substring: str)`**
   - Comments out keys in a section if their values match a substring.
 
-- **`uncomment_key_if_value_matches_in_section(section: str, match_substring: str)`**
+- **`uncomment_key_by_section_search(section: str, match_substring: str)`**
   - Uncomments keys in a section if their values match a substring.
 
 - **`display()`**

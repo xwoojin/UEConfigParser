@@ -105,7 +105,7 @@ class UnrealConfigParser:
 
         self.lines = updated_lines
 
-    def modify(self, section: str, key: str, new_value: str, spacing=False):
+    def set(self, section: str, key: str, new_value: str, spacing=False):
         """
         Modifies the value of a key in a section
         :param section: Section name to modify
@@ -218,7 +218,7 @@ class UnrealConfigParser:
             print(f'Does not exist')
         self.lines = updated_lines
 
-    def update_value_if_matches_in_section(self, section: str, match_substring: str, new_value: str):
+    def set_value_by_section_search(self, section: str, match_substring: str, new_value: str):
         """
         Updates the value of any key in the given section if the full 'key=value' string contains the match_substring.
     
@@ -257,7 +257,7 @@ class UnrealConfigParser:
             print(f'{active_key}={active_value}')
         self.lines = updated_lines
 
-    def update_value_if_matches(self, section: str, key: str, match_substring: str, new_value: str):
+    def set_value_by_value_substring_search(self, section: str, key: str, match_substring: str, new_value: str):
         """
         Updates the value of a specific key in a section if the current value contains the match_substring.
         
@@ -300,7 +300,7 @@ class UnrealConfigParser:
             print(f'{active_key}={active_value}')
         self.lines = updated_lines
 
-    def comment_key_if_value_matches(self, section: str, key: str, match_substring: str):
+    def comment_key_by_value_substring_search(self, section: str, key: str, match_substring: str):
         """
         comment entire key if value is matched in given section/key
         
@@ -342,7 +342,7 @@ class UnrealConfigParser:
             print(f'Does not exist')
         self.lines = updated_lines
 
-    def uncomment_key_if_value_matches(self, section: str, key: str, match_substring: str):
+    def uncomment_key_by_value_substring_search(self, section: str, key: str, match_substring: str):
         """
         uncomment entire key if value is matched in given section/key
         
@@ -387,7 +387,7 @@ class UnrealConfigParser:
             print(f'Does not exist')
         self.lines = updated_lines
 
-    def comment_key_if_value_matches_in_section(self, section: str, match_substring: str):
+    def comment_key_by_section_search(self, section: str, match_substring: str):
         """
         comment entire key if value is matched in given section
         
@@ -429,7 +429,7 @@ class UnrealConfigParser:
             print(f'Does not exist')
         self.lines = updated_lines
 
-    def uncomment_key_if_value_matches_in_section(self, section: str, match_substring: str):
+    def uncomment_key_by_section_search(self, section: str, match_substring: str):
         """
         uncomment entire key if value is matched in given section
         
