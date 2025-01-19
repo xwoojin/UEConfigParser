@@ -76,7 +76,6 @@ class UnrealConfigParser:
             updated_lines.append(f'\n[{section}]\n{key}={value}\n')
         self.lines = updated_lines
 
-
     def remove_key(self, section: str, key: str):
         """
         Removes a key from a section
@@ -218,9 +217,9 @@ class UnrealConfigParser:
             print(f'Does not exist')
         self.lines = updated_lines
 
-    def set_value_by_section_search(self, section: str, match_substring: str, new_value: str):
+    def set_value_by_string_serach_in_section(self, section: str, match_substring: str, new_value: str):
         """
-        Updates the value of any key in the given section if the full 'key=value' string contains the match_substring.
+        Updates the value of any key in the given section if the full 'key=value' string contains the match_substring. (even partial match)
     
         :param section: The section to search in.
         :param match_substring: The substring to match within the 'key=value' string.
@@ -257,9 +256,9 @@ class UnrealConfigParser:
             print(f'{active_key}={active_value}')
         self.lines = updated_lines
 
-    def set_value_by_value_substring_search(self, section: str, key: str, match_substring: str, new_value: str):
+    def set_value_by_string_search_in_value(self, section: str, key: str, match_substring: str, new_value: str):
         """
-        Updates the value of a specific key in a section if the current value contains the match_substring.
+        Updates the value of a specific key in a section if the current value contains the match_substring.  (even partial match)
         
         :param section: The section to search in.
         :param key: The key whose value needs to be updated.
@@ -300,9 +299,9 @@ class UnrealConfigParser:
             print(f'{active_key}={active_value}')
         self.lines = updated_lines
 
-    def comment_key_by_value_substring_search(self, section: str, key: str, match_substring: str):
+    def comment_key_by_string_search_in_value(self, section: str, key: str, match_substring: str):
         """
-        comment entire key if value is matched in given section/key
+        comment entire key if value is matched in given section/key  (even partial match)
         
         :param section: The section to search in.
         :param key: The key whose value needs to be updated.
@@ -342,9 +341,9 @@ class UnrealConfigParser:
             print(f'Does not exist')
         self.lines = updated_lines
 
-    def uncomment_key_by_value_substring_search(self, section: str, key: str, match_substring: str):
+    def uncomment_key_by_string_search_in_value(self, section: str, key: str, match_substring: str):
         """
-        uncomment entire key if value is matched in given section/key
+        uncomment entire key if value is matched in given section/key  (even partial match)
         
         :param section: The section to search in.
         :param key: The key whose value needs to be updated.
@@ -387,9 +386,9 @@ class UnrealConfigParser:
             print(f'Does not exist')
         self.lines = updated_lines
 
-    def comment_key_by_section_search(self, section: str, match_substring: str):
+    def comment_key_by_string_search_in_section(self, section: str, match_substring: str):
         """
-        comment entire key if value is matched in given section
+        comment entire key if value is matched in given section  (even partial match)
         
         :param section: The section to search in.
         :param key: The key whose value needs to be updated.
@@ -431,7 +430,7 @@ class UnrealConfigParser:
 
     def uncomment_key_by_section_search(self, section: str, match_substring: str):
         """
-        uncomment entire key if value is matched in given section
+        uncomment entire key if value is matched in given section  (even partial match)
         
         :param section: The section to search in.
         :param match_substring: The substring to match in the current value.
@@ -472,9 +471,9 @@ class UnrealConfigParser:
             print(f'Does not exist')
         self.lines = updated_lines
     
-    def replace_substring_in_value(self, section: str, key: str, match_substring: str, new_substring: str):
+    def replace_value_by_string_search_in_value(self, section: str, key: str, match_substring: str, new_substring: str):
         """
-        Replaces a substring in the value of a specific key in a given section.
+        Replaces a substring in the value of a specific key in a given section.  (even partial match)
 
         :param section: The section to search in.
         :param key: The key whose value needs to be updated.
@@ -515,7 +514,7 @@ class UnrealConfigParser:
             print(f'{active_key}={active_value}')
         self.lines = updated_lines
 
-    def replace_substring_in_section(self, section: str, match_substring: str, new_substring: str):
+    def replace_value_by_string_search_in_section(self, section: str, match_substring: str, new_substring: str):
         """
         Replaces a substring in the values of all keys within a given section.
         

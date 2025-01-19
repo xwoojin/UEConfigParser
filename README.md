@@ -138,25 +138,25 @@ parser.write('updated_config.ini')
 - **`uncomment_key(section: str, key: str)`**
   - Enables a key by uncommenting it.
 
-- **`set_value_by_value_substring_search(section: str, key: str, match_substring: str, new_value: str)`**
-  - Updates a key's value if it matches a specific substring.
-
-- **`set_value_by_section_search(section: str, match_substring: str, new_value: str)`**
+- **`set_value_by_string_serach_in_section(section: str, match_substring: str, new_value: str)`**
   - Updates any key's value in a section if it matches a substring.
 
-- **`replace_substring_in_value(section: str, key: str, match_substring: str, new_substring: str)`**
+- **`set_value_by_string_search_in_value(section: str, key: str, match_substring: str, new_value: str)`**
+  - Updates a key's value if it matches a specific substring.
+
+- **`replace_value_by_string_search_in_value(section: str, key: str, match_substring: str, new_substring: str)`**
   - Replaces a substring in the value of a specific key.
 
-- **`replace_substring_in_section(section: str, match_substring: str, new_substring: str)`**
+- **`replace_value_by_string_search_in_section(section: str, match_substring: str, new_substring: str)`**
   - Replaces substrings in the values of all keys within a section.
 
-- **`comment_key_by_value_substring_search(section: str, key: str, match_substring: str)`**
+- **`comment_key_by_string_search_in_value(section: str, key: str, match_substring: str)`**
   - Comments out a key if its value matches a specific substring.
 
-- **`uncomment_key_by_value_substring_search(section: str, key: str, match_substring: str)`**
+- **`uncomment_key_by_string_search_in_value(section: str, key: str, match_substring: str)`**
   - Uncomments a key if its value matches a specific substring.
 
-- **`comment_key_by_section_search(section: str, match_substring: str)`**
+- **`comment_key_by_string_search_in_section(section: str, match_substring: str)`**
   - Comments out keys in a section if their values match a substring.
 
 - **`uncomment_key_by_section_search(section: str, match_substring: str)`**
