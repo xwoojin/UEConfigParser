@@ -95,22 +95,56 @@ class UnrealConfigParser:
         :param key: Key name to remove
         """
         in_section = False
-        key_found = False
+        exists = False
         updated_lines = []
         for line in self.lines:
-            stripped = line.strip()
-            if self._is_section(stripped, section):
-                in_section = True
-            elif stripped.startswith('[') and stripped.endswith(']'):
-                in_section = False
-            if in_section and '=' in stripped and not stripped.startswith((';', '#')):
-                current_key, value = map(str.strip, stripped.split('=', 1))
-                if current_key == key:
-                    key_found = True
-                    continue
+            if not exists:
+                stripped = line.strip()
+                if self._is_section(stripped, section):
+                    in_section = True
+                elif stripped.startswith('[') and stripped.endswith(']'):
+                    in_section = False
+                if in_section and '=' in stripped and not stripped.startswith((';', '#')):
+                    current_key, value = map(str.strip, stripped.split('=', 1))
+                    if current_key == key:
+                        exists = True
+                        continue
             updated_lines.append(line)
 
-        if not key_found:
+        if not exists:
+            return False
+        self.lines = updated_lines
+        return True
+
+
+    def remove_key_by_value_search(self, section: str, key: str, substring: str, search_in_comment=False):
+        """
+        Removes a key from a section
+        :param section: Section name to remove the key
+        :param key: Key name to remove
+        """
+        in_section = False
+        exists = False
+        updated_lines = []
+        for line in self.lines:
+            if not exists:
+                stripped = line.strip()
+                if self._is_section(stripped, section):
+                    in_section = True
+                elif stripped.startswith('[') and stripped.endswith(']'):
+                    in_section = False
+                if in_section and '=' in stripped:
+                    if stripped.startswith(';') or stripped.startswith('#'):
+                        if not search_in_comment:
+                            continue
+                    current_key, value = map(str.strip, stripped.split('=', 1))
+                    if current_key == key:
+                        if substring in value:
+                            exists = True
+                            continue
+            updated_lines.append(line)
+
+        if not exists:
             return False
         self.lines = updated_lines
         return True
@@ -155,20 +189,26 @@ class UnrealConfigParser:
         """
         in_section = False
         exists = False
+        updated = False
         updated_lines = []
         for line in self.lines:
-            stripped = line.strip()
-            if self._is_section(stripped, section):
-                in_section = True
-            elif stripped.startswith('[') and stripped.endswith(']'):
-                in_section = False
-            if in_section and '=' in stripped and not stripped.startswith((';', '#')):
-                current_key, value = map(str.strip, stripped.split('=', 1))
-                if current_key == key:
-                    line = f';{line}'
-                    exists = True
-           
-            updated_lines.append(line)
+            updated = False
+            if not exists:
+                stripped = line.strip()
+                if self._is_section(stripped, section):
+                    in_section = True
+                elif stripped.startswith('[') and stripped.endswith(']'):
+                    in_section = False
+                if in_section and '=' in stripped and not stripped.startswith((';', '#')):
+                    current_key, value = map(str.strip, stripped.split('=', 1))
+                    if current_key == key:
+                        line = f';{line}'
+                        exists = True
+                        updated = True
+            if updated:
+                updated_lines.append(stripped)
+            else:
+                updated_lines.append(line)
         if not exists:
             return False
         self.lines = updated_lines
@@ -182,20 +222,27 @@ class UnrealConfigParser:
         """
         in_section = False
         exists = False
+        updated = False
         updated_lines = []
         for line in self.lines:
-            stripped = line.strip()
-            if self._is_section(stripped, section):
-                in_section = True
-            elif stripped.startswith('[') and stripped.endswith(']'):
-                in_section = False
-            if in_section and stripped.startswith(';') and '=' in stripped:
-                uncommented_line = stripped[1:].strip()
-                current_key, value = map(str.strip, uncommented_line.split('=', 1))
-                if current_key == key:
-                    line = uncommented_line + '\n'
-                    exists = True
-            updated_lines.append(line)
+            updated = False
+            if not exists:
+                stripped = line.strip()
+                if self._is_section(stripped, section):
+                    in_section = True
+                elif stripped.startswith('[') and stripped.endswith(']'):
+                    in_section = False
+                if in_section and stripped.startswith(';') and '=' in stripped:
+                    uncommented_line = stripped[1:].strip()
+                    current_key, value = map(str.strip, uncommented_line.split('=', 1))
+                    if current_key == key:
+                        line = uncommented_line + '\n'
+                        exists = True
+                        updated = True
+            if updated:
+                updated_lines.append(stripped)
+            else:
+                updated_lines.append(line)
         self.lines = updated_lines
         if not exists:
             return False
@@ -213,21 +260,28 @@ class UnrealConfigParser:
         in_section = False
         updated_lines = []
         exists = False
+        updated = False
         for line in self.lines:
-            stripped = line.strip()
-            if self._is_section(stripped, section):
-                in_section = True
-            elif stripped.startswith('[') and stripped.endswith(']'):
-                in_section = False
-            if in_section and '=' in stripped:
-                if stripped.startswith((';', '#')):
-                    if not search_in_comment:
-                        continue
-                key, value = map(str.strip, stripped.split('=', 1))
-                if match_substring in stripped:
-                    line = f'{key}={new_value}\n'
-                    exists = True
-            updated_lines.append(line)
+            updated = False
+            if not exists:
+                stripped = line.strip()
+                if self._is_section(stripped, section):
+                    in_section = True
+                elif stripped.startswith('[') and stripped.endswith(']'):
+                    in_section = False
+                if in_section and '=' in stripped:
+                    if stripped.startswith((';', '#')):
+                        if not search_in_comment:
+                            continue
+                    key, value = map(str.strip, stripped.split('=', 1))
+                    if match_substring in stripped:
+                        line = f'{key}={new_value}\n'
+                        exists = True
+                        updated = True
+            if updated:
+                updated_lines.append(stripped)
+            else:
+                updated_lines.append(line)
         
         if not exists:
             return False
@@ -246,23 +300,30 @@ class UnrealConfigParser:
         in_section = False
         updated_lines = []
         exists = False
-        
+        updated = False
+
         for line in self.lines:
-            stripped = line.strip()
-            if self._is_section(stripped, section):
-                in_section = True
-            elif stripped.startswith('[') and stripped.endswith(']'):
-                in_section = False
-            if in_section and '=' in stripped:
-                if stripped.startswith(';') or stripped.startswith('#'):
-                    if not search_in_comment:
-                        continue
-                current_key, value = map(str.strip, stripped.split('=', 1))
-                if current_key == key:
-                    exists = True
-                    if match_substring in value:
-                        line = f'{key}={new_value}\n'
-            updated_lines.append(line)
+            updated = False
+            if not exists:
+                stripped = line.strip()
+                if self._is_section(stripped, section):
+                    in_section = True
+                elif stripped.startswith('[') and stripped.endswith(']'):
+                    in_section = False
+                if in_section and '=' in stripped:
+                    if stripped.startswith(';') or stripped.startswith('#'):
+                        if not search_in_comment:
+                            continue
+                    current_key, value = map(str.strip, stripped.split('=', 1))
+                    if current_key == key:
+                        exists = True
+                        updated = True
+                        if match_substring in value:
+                            line = f'{key}={new_value}\n'
+            if updated:
+                updated_lines.append(stripped)
+            else:
+                updated_lines.append(line)
 
         if not exists:
             return False
@@ -409,22 +470,27 @@ class UnrealConfigParser:
         exists = False
         updated_lines = []
         for line in self.lines:
-            stripped = line.strip()
-            if self._is_section(stripped, section):
-                in_section = True
-            elif stripped.startswith('[') and stripped.endswith(']'):
-                in_section = False
-            if in_section and '=' in stripped:
-                if stripped.startswith(';') or stripped.startswith('#'):
-                    if not search_in_comment:
-                        continue
-                current_key, value = map(str.strip, stripped.split('=', 1))
-                if current_key == key and match_substring in value:
-                    value = value.replace(match_substring, new_substring)
-                    line = f'{current_key}={value}\n'
-                    exists = True
-
-            updated_lines.append(line)
+            updated = False
+            if not exists:
+                stripped = line.strip()
+                if self._is_section(stripped, section):
+                    in_section = True
+                elif stripped.startswith('[') and stripped.endswith(']'):
+                    in_section = False
+                if in_section and '=' in stripped:
+                    if stripped.startswith(';') or stripped.startswith('#'):
+                        if not search_in_comment:
+                            continue
+                    current_key, value = map(str.strip, stripped.split('=', 1))
+                    if current_key == key and match_substring in value:
+                        value = value.replace(match_substring, new_substring)
+                        line = f'{current_key}={value}\n'
+                        exists = True
+                        updated = True
+            if updated:
+                updated_lines.append(stripped)
+            else:
+                updated_lines.append(line)
 
         if not exists:
             return False
@@ -433,7 +499,7 @@ class UnrealConfigParser:
 
     def replace_value_by_string_search_in_section(self, section: str, match_substring: str, new_substring: str, search_in_comment=False):
         """
-        Replaces a substring in the values of all keys within a given section.
+        Replaces a substring in the values as it treats key=value entire line as a single string within a given section.
         
         :param section: The section to search in.
         :param match_substring: The substring to match in the current value.
@@ -441,29 +507,28 @@ class UnrealConfigParser:
         """
         in_section = False
         exists = False
-        active_key = ''
-        active_value = ''
         updated_lines = []
-
         for line in self.lines:
-            stripped = line.strip()
-            if self._is_section(stripped, section):
-                in_section = True
-            elif stripped.startswith('[') and stripped.endswith(']'):
-                in_section = False
-            if in_section and '=' in stripped:
-                if stripped.startswith(';') or stripped.startswith('#'):
-                    if not search_in_comment:
-                        continue
-                current_key, value = map(str.strip, stripped.split('=', 1))
-                if match_substring in value:
-                    value = value.replace(match_substring, new_substring)
-                    active_value = value
-                    active_key = current_key
-                    line = f'{current_key}={value}\n'
-                    exists = True
-
-            updated_lines.append(line)
+            updated = False
+            if not exists:
+                stripped = line.strip()
+                if self._is_section(stripped, section):
+                    in_section = True
+                elif stripped.startswith('[') and stripped.endswith(']'):
+                    in_section = False
+                if in_section and '=' in stripped:
+                    if stripped.startswith(';') or stripped.startswith('#'):
+                        if not search_in_comment:
+                            continue
+                    #current_key, value = map(str.strip, stripped.split('=', 1))
+                    if match_substring in stripped:
+                        stripped = stripped.replace(match_substring, new_substring) + '\n'
+                        exists = True
+                        updated = True
+            if updated:
+                updated_lines.append(stripped)
+            else:
+                updated_lines.append(line)
 
         if not exists:
             return False
