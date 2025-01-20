@@ -116,8 +116,7 @@ class UnrealConfigParser:
         self.lines = updated_lines
         return True
 
-
-    def remove_key_by_value_search(self, section: str, key: str, substring: str, search_in_comment=False):
+    def remove_key_within_key(self, section: str, key: str, substring: str, search_in_comment=False):
         """
         Removes a key from a section
         :param section: Section name to remove the key
@@ -249,7 +248,7 @@ class UnrealConfigParser:
         self.lines = updated_lines
         return True
 
-    def set_value_by_string_serach_in_section(self, section: str, match_substring: str, new_value: str, search_in_comment=False):
+    def set_value_in_section(self, section: str, match_substring: str, new_value: str, search_in_comment=False):
         """
         Updates the value of any key in the given section if the full 'key=value' string contains the match_substring. (even partial match)
     
@@ -288,7 +287,7 @@ class UnrealConfigParser:
         self.lines = updated_lines
         return True
 
-    def set_value_by_string_search_in_value(self, section: str, key: str, match_substring: str, new_value: str, search_in_comment=False):
+    def set_value_by_partial_match(self, section: str, key: str, match_substring: str, new_value: str, search_in_comment=False):
         """
         Updates the value of a specific key in a section if the current value contains the match_substring.  (even partial match)
         
@@ -330,7 +329,7 @@ class UnrealConfigParser:
         self.lines = updated_lines
         return True
 
-    def comment_key_by_string_search_in_value(self, section: str, key: str, match_substring: str):
+    def comment_within_key(self, section: str, key: str, match_substring: str):
         """
         comment entire key if value is matched in given section/key  (even partial match)
         
@@ -358,8 +357,38 @@ class UnrealConfigParser:
             return False
         self.lines = updated_lines
         return True
+    
+    def comment_within_section(self, section: str, match_substring: str):
+        """
+        comment entire key if value is matched in given section  (even partial match)
+        
+        :param section: The section to search in.
+        :param key: The key whose value needs to be updated.
+        :param match_substring: The substring to match in the current value.
+        """
+        in_section = False
+        exists = False
+        updated_lines = []
 
-    def uncomment_key_by_string_search_in_value(self, section: str, key: str, match_substring: str):
+        for line in self.lines:
+            stripped = line.strip()
+            if self._is_section(stripped, section):
+                in_section = True
+            elif stripped.startswith('[') and stripped.endswith(']'):
+                in_section = False
+            if in_section and '=' in stripped and not stripped.startswith((';', '#')):
+                current_key, value = map(str.strip, stripped.split('=', 1))
+                if match_substring in value:
+                    line = f';{line}'
+                    exists = True
+            updated_lines.append(line)
+
+        if not exists:
+            return False
+        self.lines = updated_lines
+        return True
+
+    def uncomment_within_key(self, section: str, key: str, match_substring: str):
         """
         uncomment entire key if value is matched in given section/key  (even partial match)
         
@@ -397,37 +426,7 @@ class UnrealConfigParser:
         self.lines = updated_lines
         return True
 
-    def comment_key_by_string_search_in_section(self, section: str, match_substring: str):
-        """
-        comment entire key if value is matched in given section  (even partial match)
-        
-        :param section: The section to search in.
-        :param key: The key whose value needs to be updated.
-        :param match_substring: The substring to match in the current value.
-        """
-        in_section = False
-        exists = False
-        updated_lines = []
-
-        for line in self.lines:
-            stripped = line.strip()
-            if self._is_section(stripped, section):
-                in_section = True
-            elif stripped.startswith('[') and stripped.endswith(']'):
-                in_section = False
-            if in_section and '=' in stripped and not stripped.startswith((';', '#')):
-                current_key, value = map(str.strip, stripped.split('=', 1))
-                if match_substring in value:
-                    line = f';{line}'
-                    exists = True
-            updated_lines.append(line)
-
-        if not exists:
-            return False
-        self.lines = updated_lines
-        return True
-
-    def uncomment_key_by_section_search(self, section: str, match_substring: str):
+    def uncomment_within_section(self, section: str, match_substring: str):
         """
         uncomment entire key if value is matched in given section  (even partial match)
         
@@ -457,7 +456,7 @@ class UnrealConfigParser:
         self.lines = updated_lines
         return True
 
-    def replace_value_by_string_search_in_value(self, section: str, key: str, match_substring: str, new_substring: str, search_in_comment=False):
+    def replace_within_key(self, section: str, key: str, match_substring: str, new_substring: str, search_in_comment=False):
         """
         Replaces a substring in the value of a specific key in a given section.  (even partial match)
 
@@ -497,7 +496,7 @@ class UnrealConfigParser:
         self.lines = updated_lines
         return True
 
-    def replace_value_by_string_search_in_section(self, section: str, match_substring: str, new_substring: str, search_in_comment=False):
+    def replace_within_section(self, section: str, match_substring: str, new_substring: str, search_in_comment=False):
         """
         Replaces a substring in the values as it treats key=value entire line as a single string within a given section.
         
