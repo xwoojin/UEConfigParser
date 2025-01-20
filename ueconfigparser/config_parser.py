@@ -1,4 +1,4 @@
-# v1.1.10
+# v1.2.0
 import os
 from pathlib import Path
 
@@ -87,6 +87,40 @@ class UnrealConfigParser:
         if not section_found:
             updated_lines.append(f'\n[{section}]\n{key}={value}\n')
         self.lines = updated_lines
+
+    def add_key_after_match(self, section: str, substring: str, new_line: str):
+        """
+        Adds a new line after the line in the specified section where the substring matches.
+
+        :param section: The section name to search in
+        :param substring: The substring to search for in lines within the section
+        :param new_line: The new line to append after the matched line
+        :raises ValueError: If the section or matching substring is not found
+        """
+        in_section = False
+        updated_lines = []
+        section_found = False
+        found = False
+        for index, line in enumerate(self.lines):
+            stripped = line.strip()
+            if self._is_section(stripped, section):
+                in_section = True
+                section_found = True
+            if in_section and substring in stripped and not found:
+                updated_lines.append(line)  # Add the current line
+                updated_lines.append(new_line + '\n')  # Add the new line after the match
+                found = True
+            else:
+                updated_lines.append(line)
+
+            # If we exit the section
+            if in_section and self._is_section(line, section) and stripped[1:-1] != section:
+                in_section = False
+
+        if not section_found:
+            updated_lines.append(f'\n[{section}]\n{new_line}\n')
+        self.lines = updated_lines
+
 
     def remove_key(self, section: str, key: str):
         """
