@@ -1,9 +1,18 @@
+# v1.1.8
 import os
+from pathlib import Path
 
 class UnrealConfigParser:
     def __init__(self):
         """Constructor"""
         self.lines = []
+
+    def is_file(self, file_path: str):
+        """
+        Check if the file exists
+        :param file_path: Path to the file
+        """
+        return Path(file_path).name == file_path
 
     def read(self, file_path: str):
         """
@@ -27,14 +36,17 @@ class UnrealConfigParser:
         :param output_path: Path to the output file
         :param newline_option: Newline character to use. Options: 'None','\n', '\r\n' (default: None)
         """
-        if not os.path.exists(os.path.dirname(output_path)):
+        file_path = output_path
+        if self.is_file(output_path):
+            file_path = os.path.join(os.getcwd(), output_path)
+        if not os.path.exists(os.path.dirname(file_path)):
             try:
-                os.makedirs(os.path.dirname(output_path))
+                os.makedirs(os.path.dirname(file_path))
             except Exception as e:
-                print(f'Directory create error: {output_path}', end='')
+                print(f'Directory create error: {file_path}', end='')
                 print(e)
         try:
-            with open(output_path, 'w', encoding='utf-8', newline=newline_option) as file:
+            with open(file_path, 'w', encoding='utf-8', newline=newline_option) as file:
                 file.writelines(self.lines)
             print(f'File written: {output_path}')
         except Exception as e:
@@ -96,13 +108,12 @@ class UnrealConfigParser:
                 if current_key == key:
                     key_found = True
                     continue
-
             updated_lines.append(line)
 
         if not key_found:
-            print(f'{section} - {key} : does not exists')
-
+            return False
         self.lines = updated_lines
+        return True
 
     def set(self, section: str, key: str, new_value: str, spacing=False):
         """
@@ -129,13 +140,12 @@ class UnrealConfigParser:
                     else:
                         line = f'{key}={new_value}\n'
                     key_found = True
-
             updated_lines.append(line)
 
         if in_section and not key_found:
-            print(f'{section} - {key} : does not exists')
-
+            return False
         self.lines = updated_lines
+        return True
 
     def comment_key(self, section: str, key: str):
         """
@@ -144,7 +154,6 @@ class UnrealConfigParser:
         :param key: Key name to disable
         """
         in_section = False
-        commented = False
         exists = False
         updated_lines = []
         for line in self.lines:
@@ -156,25 +165,14 @@ class UnrealConfigParser:
             if in_section and '=' in stripped and not stripped.startswith((';', '#')):
                 current_key, value = map(str.strip, stripped.split('=', 1))
                 if current_key == key:
-                    line = f'; {line}'
+                    line = f';{line}'
                     exists = True
-            if in_section and '=' in stripped:
-                current_key, value = map(str.strip, stripped.split('=', 1))
-                if current_key == key:
-                    if stripped.startswith(';') or stripped.startswith('#'):
-                        commented = True
+           
             updated_lines.append(line)
-
-        print(f'in Section: {section}')
-        print(f'in Key: {key}')
-        if exists:
-            if commented:
-                print(f'Commented')
-            else:
-                print(f'Already commented')
-        else:
-            print(f'Does not exist')
+        if not exists:
+            return False
         self.lines = updated_lines
+        return True
 
     def uncomment_key(self, section: str, key: str):
         """
@@ -184,7 +182,6 @@ class UnrealConfigParser:
         """
         in_section = False
         exists = False
-        commented = False
         updated_lines = []
         for line in self.lines:
             stripped = line.strip()
@@ -198,26 +195,14 @@ class UnrealConfigParser:
                 if current_key == key:
                     line = uncommented_line + '\n'
                     exists = True
-            if in_section and '=' in stripped:
-                uncommented_line = stripped[1:].strip()
-                current_key, value = map(str.strip, uncommented_line.split('=', 1))
-                if current_key == key:
-                    if stripped.startswith(';') or stripped.startswith('#'):
-                        commented = True
             updated_lines.append(line)
-
-        print(f'in Section: {section}')
-        print(f'in Key: {key}')
-        if exists:
-            if commented:
-                print(f'Already uncommented')
-            else:
-                print(f'Uncommented')
-        else:
-            print(f'Does not exist')
         self.lines = updated_lines
+        if not exists:
+            return False
+        self.lines = updated_lines
+        return True
 
-    def set_value_by_string_serach_in_section(self, section: str, match_substring: str, new_value: str):
+    def set_value_by_string_serach_in_section(self, section: str, match_substring: str, new_value: str, search_in_comment=False):
         """
         Updates the value of any key in the given section if the full 'key=value' string contains the match_substring. (even partial match)
     
@@ -228,35 +213,28 @@ class UnrealConfigParser:
         in_section = False
         updated_lines = []
         exists = False
-        active_key = ''
-        active_value = ''
         for line in self.lines:
             stripped = line.strip()
             if self._is_section(stripped, section):
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
-            if in_section and '=' in stripped and not stripped.startswith((';', '#')):
+            if in_section and '=' in stripped:
+                if stripped.startswith((';', '#')):
+                    if not search_in_comment:
+                        continue
                 key, value = map(str.strip, stripped.split('=', 1))
                 if match_substring in stripped:
                     line = f'{key}={new_value}\n'
-                    active_key = key
-                    active_value = new_value
                     exists = True
             updated_lines.append(line)
-    
-        print('Search Substring:', match_substring)
-        print(f'in Section: {section}')
-
+        
         if not exists:
-            print('NOT FOUND')
-        else:
-            print('Search Substring Found.')
-            print('New record is as follows')
-            print(f'{active_key}={active_value}')
+            return False
         self.lines = updated_lines
+        return True
 
-    def set_value_by_string_search_in_value(self, section: str, key: str, match_substring: str, new_value: str):
+    def set_value_by_string_search_in_value(self, section: str, key: str, match_substring: str, new_value: str, search_in_comment=False):
         """
         Updates the value of a specific key in a section if the current value contains the match_substring.  (even partial match)
         
@@ -268,8 +246,6 @@ class UnrealConfigParser:
         in_section = False
         updated_lines = []
         exists = False
-        active_key = ''
-        active_value = ''
         
         for line in self.lines:
             stripped = line.strip()
@@ -277,27 +253,21 @@ class UnrealConfigParser:
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
-            if in_section and '=' in stripped and not stripped.startswith((';', '#')):
+            if in_section and '=' in stripped:
+                if stripped.startswith(';') or stripped.startswith('#'):
+                    if not search_in_comment:
+                        continue
                 current_key, value = map(str.strip, stripped.split('=', 1))
                 if current_key == key:
                     exists = True
                     if match_substring in value:
                         line = f'{key}={new_value}\n'
-                        active_key = key
-                        active_value = new_value
             updated_lines.append(line)
 
-        print(f'Search Substring: {match_substring}')
-        print(f'in Section: {section}')
-        print(f'in Key: {key}')
-
         if not exists:
-            print('NOT FOUND')
-        else:
-            print('Search Substring Found.')
-            print('New record is as follows')
-            print(f'{active_key}={active_value}')
+            return False
         self.lines = updated_lines
+        return True
 
     def comment_key_by_string_search_in_value(self, section: str, key: str, match_substring: str):
         """
@@ -309,37 +279,24 @@ class UnrealConfigParser:
         """
         in_section = False
         exists = False
-        commented = False
         updated_lines = []
         for line in self.lines:
             stripped = line.strip()
-            if self._is_target_section(stripped, section):
+            if self._is_section(stripped, section):
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
             if in_section and '=' in stripped and not stripped.startswith((';', '#')):
                 current_key, value = map(str.strip, stripped.split('=', 1))
                 if current_key == key and match_substring in value:
-                    line = f'; {line}'
+                    line = f';{line}'
                     exists = True
-            if in_section and '=' in stripped:
-                current_key, value = map(str.strip, stripped.split('=', 1))
-                if current_key == key and match_substring in value:
-                    if stripped.startswith(';') or stripped.startswith('#'):
-                        commented = True
             updated_lines.append(line)
         
-        print(f'Search Substring: {match_substring}')
-        print(f'in Section: {section}')
-        print(f'in Key: {key}')
-        if exists:
-            if commented:
-                print(f'Already commented')
-            else:
-                print(f'Commented')
-        else:
-            print(f'Does not exist')
+        if not exists:
+            return False
         self.lines = updated_lines
+        return True
 
     def uncomment_key_by_string_search_in_value(self, section: str, key: str, match_substring: str):
         """
@@ -356,7 +313,7 @@ class UnrealConfigParser:
 
         for line in self.lines:
             stripped = line.strip()
-            if self._is_target_section(stripped, section):
+            if self._is_section(stripped, section):
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
@@ -374,17 +331,10 @@ class UnrealConfigParser:
                         commented = True
             updated_lines.append(line)
         
-        print(f'Search Substring: {match_substring}')
-        print(f'in Section: {section}')
-        print(f'in Key: {key}')
-        if exists:
-            if commented:
-                print(f'Uncommented')
-            else:
-                print(f'Already uncommented')
-        else:
-            print(f'Does not exist')
+        if not exists:
+            return False
         self.lines = updated_lines
+        return True
 
     def comment_key_by_string_search_in_section(self, section: str, match_substring: str):
         """
@@ -396,37 +346,25 @@ class UnrealConfigParser:
         """
         in_section = False
         exists = False
-        commented = False
         updated_lines = []
 
         for line in self.lines:
             stripped = line.strip()
-            if self._is_target_section(stripped, section):
+            if self._is_section(stripped, section):
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
             if in_section and '=' in stripped and not stripped.startswith((';', '#')):
                 current_key, value = map(str.strip, stripped.split('=', 1))
                 if match_substring in value:
-                    line = f'; {line}'
+                    line = f';{line}'
                     exists = True
-            if in_section and '=' in stripped:
-                current_key, value = map(str.strip, stripped.split('=', 1))
-                if match_substring in value:
-                    if stripped.startswith(';') or stripped.startswith('#'):
-                        commented = True
             updated_lines.append(line)
 
-        print(f'Search Substring: {match_substring}')
-        print(f'in Section: {section}')
-        if exists:
-            if commented:
-                print(f'Already commented')
-            else:
-                print(f'Commented')
-        else:
-            print(f'Does not exist')
+        if not exists:
+            return False
         self.lines = updated_lines
+        return True
 
     def uncomment_key_by_section_search(self, section: str, match_substring: str):
         """
@@ -437,12 +375,11 @@ class UnrealConfigParser:
         """
         in_section = False
         exists = False
-        commented = False
         updated_lines = []
 
         for line in self.lines:
             stripped = line.strip()
-            if self._is_target_section(stripped, section):
+            if self._is_section(stripped, section):
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
@@ -452,26 +389,14 @@ class UnrealConfigParser:
                 if match_substring in value:
                     line = uncommented_line + '\n'
                     exists = True
-            if in_section and '=' in stripped:
-                uncommented_line = stripped[1:].strip()
-                current_key, value = map(str.strip, uncommented_line.split('=', 1))
-                if match_substring in value:
-                    if stripped.startswith(';') or stripped.startswith('#'):
-                        commented = True
             updated_lines.append(line)
 
-        print(f'Search Substring: {match_substring}')
-        print(f'in Section: {section}')
-        if exists:
-            if commented:
-                print(f'Uncommented')
-            else:
-                print(f'Already uncommented')
-        else:
-            print(f'Does not exist')
+        if not exists:
+            return False
         self.lines = updated_lines
-    
-    def replace_value_by_string_search_in_value(self, section: str, key: str, match_substring: str, new_substring: str):
+        return True
+
+    def replace_value_by_string_search_in_value(self, section: str, key: str, match_substring: str, new_substring: str, search_in_comment=False):
         """
         Replaces a substring in the value of a specific key in a given section.  (even partial match)
 
@@ -483,38 +408,30 @@ class UnrealConfigParser:
         in_section = False
         exists = False
         updated_lines = []
-        active_key = ''
-        active_value = ''
         for line in self.lines:
             stripped = line.strip()
-            if self._is_target_section(stripped, section):
+            if self._is_section(stripped, section):
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
-            if in_section and '=' in stripped and not stripped.startswith((';', '#')):
+            if in_section and '=' in stripped:
+                if stripped.startswith(';') or stripped.startswith('#'):
+                    if not search_in_comment:
+                        continue
                 current_key, value = map(str.strip, stripped.split('=', 1))
                 if current_key == key and match_substring in value:
                     value = value.replace(match_substring, new_substring)
-                    active_value = value
-                    active_key = current_key
                     line = f'{current_key}={value}\n'
                     exists = True
 
             updated_lines.append(line)
 
-        print('Search Substring:', match_substring)
-        print(f'in Section: {section}')
-        print(f'in Key: {key}')
-
         if not exists:
-            print('NOT FOUND')
-        else:
-            print('Search Substring Found.')
-            print('New record is as follows')
-            print(f'{active_key}={active_value}')
+            return False
         self.lines = updated_lines
+        return True
 
-    def replace_value_by_string_search_in_section(self, section: str, match_substring: str, new_substring: str):
+    def replace_value_by_string_search_in_section(self, section: str, match_substring: str, new_substring: str, search_in_comment=False):
         """
         Replaces a substring in the values of all keys within a given section.
         
@@ -530,11 +447,14 @@ class UnrealConfigParser:
 
         for line in self.lines:
             stripped = line.strip()
-            if self._is_target_section(stripped, section):
+            if self._is_section(stripped, section):
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
-            if in_section and '=' in stripped and not stripped.startswith((';', '#')):
+            if in_section and '=' in stripped:
+                if stripped.startswith(';') or stripped.startswith('#'):
+                    if not search_in_comment:
+                        continue
                 current_key, value = map(str.strip, stripped.split('=', 1))
                 if match_substring in value:
                     value = value.replace(match_substring, new_substring)
@@ -545,16 +465,10 @@ class UnrealConfigParser:
 
             updated_lines.append(line)
 
-        print('Search Substring:', match_substring)
-        print(f'in Section: {section}')
-
         if not exists:
-            print('NOT FOUND')
-        else:
-            print('Search Substring Found.')
-            print('New record is as follows')
-            print(f'{active_key}={active_value}')
+            return False
         self.lines = updated_lines
+        return True
 
     def display(self):
         """
