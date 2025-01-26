@@ -7,7 +7,7 @@ class UnrealConfigParser:
         """Constructor"""
         self.lines = []
 
-    def is_file(self, file_path: str):
+    def is_filename(self, file_path: str):
         """
         Check if the file exists
         :param file_path: Path to the file
@@ -37,7 +37,7 @@ class UnrealConfigParser:
         :param newline_option: Newline character to use. Options: 'None','\n', '\r\n' (default: None)
         """
         file_path = output_path
-        if self.is_file(output_path):
+        if self.is_filename(output_path):
             file_path = os.path.join(os.getcwd(), output_path)
         if not os.path.exists(os.path.dirname(file_path)):
             try:
@@ -54,7 +54,7 @@ class UnrealConfigParser:
             print(e)
             raise
 
-    def _is_section(self, line: str, section: str) -> bool:
+    def is_section(self, line: str, section: str) -> bool:
         """
         Checks if the line is a section
         :param line: Line to check
@@ -77,7 +77,7 @@ class UnrealConfigParser:
         section_found = False
         for index, line in enumerate(self.lines):
             stripped = line.strip()
-            if self._is_section(stripped, section):
+            if self.is_section(stripped, section):
                 in_section = True
                 section_found = True
             if in_section and (index + 1 == len(self.lines) or self.lines[index + 1].strip().startswith('[')):
@@ -103,7 +103,7 @@ class UnrealConfigParser:
         found = False
         for index, line in enumerate(self.lines):
             stripped = line.strip()
-            if self._is_section(stripped, section):
+            if self.is_section(stripped, section):
                 in_section = True
                 section_found = True
             if in_section and substring in stripped and not found:
@@ -114,7 +114,7 @@ class UnrealConfigParser:
                 updated_lines.append(line)
 
             # If we exit the section
-            if in_section and self._is_section(line, section) and stripped[1:-1] != section:
+            if in_section and self.is_section(line, section) and stripped[1:-1] != section:
                 in_section = False
 
         if not section_found:
@@ -134,7 +134,7 @@ class UnrealConfigParser:
         for line in self.lines:
             if not exists:
                 stripped = line.strip()
-                if self._is_section(stripped, section):
+                if self.is_section(stripped, section):
                     in_section = True
                 elif stripped.startswith('[') and stripped.endswith(']'):
                     in_section = False
@@ -162,7 +162,7 @@ class UnrealConfigParser:
         for line in self.lines:
             if not exists:
                 stripped = line.strip()
-                if self._is_section(stripped, section):
+                if self.is_section(stripped, section):
                     in_section = True
                 elif stripped.startswith('[') and stripped.endswith(']'):
                     in_section = False
@@ -195,7 +195,7 @@ class UnrealConfigParser:
         updated_lines = []
         for line in self.lines:
             stripped = line.strip()
-            if self._is_section(stripped, section):
+            if self.is_section(stripped, section):
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
@@ -228,7 +228,7 @@ class UnrealConfigParser:
             updated = False
             if not exists:
                 stripped = line.strip()
-                if self._is_section(stripped, section):
+                if self.is_section(stripped, section):
                     in_section = True
                 elif stripped.startswith('[') and stripped.endswith(']'):
                     in_section = False
@@ -261,7 +261,7 @@ class UnrealConfigParser:
             updated = False
             if not exists:
                 stripped = line.strip()
-                if self._is_section(stripped, section):
+                if self.is_section(stripped, section):
                     in_section = True
                 elif stripped.startswith('[') and stripped.endswith(']'):
                     in_section = False
@@ -298,7 +298,7 @@ class UnrealConfigParser:
             updated = False
             if not exists:
                 stripped = line.strip()
-                if self._is_section(stripped, section):
+                if self.is_section(stripped, section):
                     in_section = True
                 elif stripped.startswith('[') and stripped.endswith(']'):
                     in_section = False
@@ -339,7 +339,7 @@ class UnrealConfigParser:
             updated = False
             if not exists:
                 stripped = line.strip()
-                if self._is_section(stripped, section):
+                if self.is_section(stripped, section):
                     in_section = True
                 elif stripped.startswith('[') and stripped.endswith(']'):
                     in_section = False
@@ -376,7 +376,7 @@ class UnrealConfigParser:
         updated_lines = []
         for line in self.lines:
             stripped = line.strip()
-            if self._is_section(stripped, section):
+            if self.is_section(stripped, section):
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
@@ -406,7 +406,7 @@ class UnrealConfigParser:
 
         for line in self.lines:
             stripped = line.strip()
-            if self._is_section(stripped, section):
+            if self.is_section(stripped, section):
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
@@ -437,7 +437,7 @@ class UnrealConfigParser:
 
         for line in self.lines:
             stripped = line.strip()
-            if self._is_section(stripped, section):
+            if self.is_section(stripped, section):
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
@@ -473,7 +473,7 @@ class UnrealConfigParser:
 
         for line in self.lines:
             stripped = line.strip()
-            if self._is_section(stripped, section):
+            if self.is_section(stripped, section):
                 in_section = True
             elif stripped.startswith('[') and stripped.endswith(']'):
                 in_section = False
@@ -506,7 +506,7 @@ class UnrealConfigParser:
             updated = False
             if not exists:
                 stripped = line.strip()
-                if self._is_section(stripped, section):
+                if self.is_section(stripped, section):
                     in_section = True
                 elif stripped.startswith('[') and stripped.endswith(']'):
                     in_section = False
@@ -545,7 +545,7 @@ class UnrealConfigParser:
             updated = False
             if not exists:
                 stripped = line.strip()
-                if self._is_section(stripped, section):
+                if self.is_section(stripped, section):
                     in_section = True
                 elif stripped.startswith('[') and stripped.endswith(']'):
                     in_section = False
